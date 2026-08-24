@@ -154,7 +154,7 @@ async function searchCity(event) {
   }
 }
 
-$('#refreshWeather').addEventListener('click',requestLocation); $('#locationButton').addEventListener('click',requestLocation); $('#citySearchForm').addEventListener('submit',searchCity); $('#shuffleOutfit').addEventListener('click',()=>{shuffleIndex++;refreshRecommendation();toast('换一套看看');});
+$('#refreshWeather').addEventListener('click',requestLocation); $('#locationButton').addEventListener('click',requestLocation); $('#locationActionButton').addEventListener('click',requestLocation); $('#citySearchForm').addEventListener('submit',searchCity); $('#shuffleOutfit').addEventListener('click',()=>{shuffleIndex++;refreshRecommendation();toast('换一套看看');});
 document.querySelectorAll('[data-goto]').forEach(button=>button.addEventListener('click',()=>switchView(button.dataset.goto)));
 $('#filterRow').addEventListener('click',event=>{const button=event.target.closest('.filter');if(!button)return;activeFilter=button.dataset.filter;document.querySelectorAll('.filter').forEach(b=>b.classList.toggle('active',b===button));renderCloset();});
 $('#itemWarmth').addEventListener('input',event=>$('#warmthOutput').textContent=['','轻薄','偏薄','中等','保暖','很暖'][event.target.value]);
@@ -174,5 +174,5 @@ function attachPhotoInput() {
 attachPhotoInput();
 $('#itemForm').addEventListener('submit',event=>{event.preventDefault();const name=$('#itemName').value.trim();const item={id:`item-${Date.now()}`,name,category:$('#itemCategory').value,color:$('#itemColor').value,warmth:Number($('#itemWarmth').value),occasion:$('#itemOccasion').value.trim(),active:true,bg:'#cfd7c8',photo:$('#photoPicker').dataset.image||''};closet.unshift(item);saveCloset();event.target.reset();$('#warmthOutput').textContent='中等';$('#photoPicker').dataset.image='';$('#photoPicker').innerHTML='<input type="file" id="itemPhoto" accept="image/*" /><span class="photo-plus">＋</span><b>上传衣物照片</b><small>支持相册或拍照</small>';attachPhotoInput();renderCloset();refreshRecommendation();switchView('closetView');toast('已加入衣橱');});
 $('.dialog-close').addEventListener('click',()=>$('#itemDialog').close());
-if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
+if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.getRegistrations().then(registrations=>Promise.all(registrations.map(registration=>registration.unregister()))));
 renderCloset();getWeather();

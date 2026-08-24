@@ -126,7 +126,7 @@ async function getWeather(lat=31.2304, lon=121.4737, label='上海') {
 function requestLocation() {
   if (!navigator.geolocation) { toast('设备不支持定位，已显示上海天气'); return; }
   $('#updatedAt').textContent='正在定位';
-  navigator.geolocation.getCurrentPosition(pos=>getWeather(pos.coords.latitude,pos.coords.longitude,'当前位置'), ()=>{toast('未取得定位，已显示上海天气');getWeather();}, {timeout:10000,maximumAge:900000});
+  navigator.geolocation.getCurrentPosition(pos=>getWeather(pos.coords.latitude,pos.coords.longitude,'当前位置'), error=>{toast(error.code === 1 ? '定位权限未开启，请使用下方城市搜索' : '未取得定位，请使用下方城市搜索');getWeather();}, {timeout:10000,maximumAge:900000});
 }
 function renderCityResults(results) {
   const container = $('#cityResults');
@@ -135,8 +135,6 @@ function renderCityResults(results) {
   container.querySelectorAll('[data-city-index]').forEach(button => button.addEventListener('click', () => {
     const city = results[Number(button.dataset.cityIndex)];
     $('#cityResults').innerHTML = '';
-    $('#citySearchForm').hidden = true;
-    $('#searchCityToggle').textContent = '⌕ 搜索其他城市';
     getWeather(city.latitude, city.longitude, [city.name, city.admin1].filter(Boolean).join(' · '));
     toast(`已切换到 ${city.name}`);
   }));
@@ -156,7 +154,7 @@ async function searchCity(event) {
   }
 }
 
-$('#refreshWeather').addEventListener('click',requestLocation); $('#locationButton').addEventListener('click',requestLocation); $('#searchCityToggle').addEventListener('click',()=>{const form=$('#citySearchForm');form.hidden=!form.hidden;$('#searchCityToggle').textContent=form.hidden?'⌕ 搜索其他城市':'收起城市搜索';if(!form.hidden) $('#citySearchInput').focus();}); $('#citySearchForm').addEventListener('submit',searchCity); $('#shuffleOutfit').addEventListener('click',()=>{shuffleIndex++;refreshRecommendation();toast('换一套看看');});
+$('#refreshWeather').addEventListener('click',requestLocation); $('#locationButton').addEventListener('click',requestLocation); $('#citySearchForm').addEventListener('submit',searchCity); $('#shuffleOutfit').addEventListener('click',()=>{shuffleIndex++;refreshRecommendation();toast('换一套看看');});
 document.querySelectorAll('[data-goto]').forEach(button=>button.addEventListener('click',()=>switchView(button.dataset.goto)));
 $('#filterRow').addEventListener('click',event=>{const button=event.target.closest('.filter');if(!button)return;activeFilter=button.dataset.filter;document.querySelectorAll('.filter').forEach(b=>b.classList.toggle('active',b===button));renderCloset();});
 $('#itemWarmth').addEventListener('input',event=>$('#warmthOutput').textContent=['','轻薄','偏薄','中等','保暖','很暖'][event.target.value]);

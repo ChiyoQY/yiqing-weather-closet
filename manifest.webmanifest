@@ -1,0 +1,9 @@
+{
+  "name": "衣晴 · 天气衣橱",
+  "short_name": "衣晴",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#faf8f3",
+  "theme_color": "#dfe9e1",
+  "description": "根据未来天气和你的衣橱给出每日穿搭建议。"
+}

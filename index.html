@@ -22,6 +22,14 @@
 
         <section class="weather-card" aria-live="polite">
           <div class="weather-meta"><span id="locationName">上海</span><span id="updatedAt">正在获取天气</span></div>
+          <div class="location-tools">
+            <button class="location-search-toggle" id="searchCityToggle" type="button">⌕ 搜索其他城市</button>
+            <form class="city-search" id="citySearchForm" hidden>
+              <input id="citySearchInput" type="search" autocomplete="off" placeholder="输入城市，例如：杭州、Tokyo" aria-label="搜索城市" />
+              <button type="submit">搜索</button>
+            </form>
+            <div class="city-results" id="cityResults" aria-live="polite"></div>
+          </div>
           <div class="weather-main"><span class="weather-icon" id="weatherIcon">☀</span><strong id="currentTemp">26°</strong><div><b id="weatherStatus">晴朗</b><span id="feelsLike">体感 26°</span></div></div>
           <p id="weatherSummary">今天适合轻盈、透气的搭配。</p>
           <div class="weather-details"><span>💧 <b id="rainChance">10%</b> 降雨</span><span>↝ <b id="windSpeed">12 km/h</b></span><span>☀ <b id="uvIndex">6</b> 紫外线</span></div>

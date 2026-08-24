@@ -128,8 +128,35 @@ function requestLocation() {
   $('#updatedAt').textContent='正在定位';
   navigator.geolocation.getCurrentPosition(pos=>getWeather(pos.coords.latitude,pos.coords.longitude,'当前位置'), ()=>{toast('未取得定位，已显示上海天气');getWeather();}, {timeout:10000,maximumAge:900000});
 }
+function renderCityResults(results) {
+  const container = $('#cityResults');
+  if (!results?.length) { container.innerHTML = '<p class="city-result">未找到该城市，请换一个名称试试。</p>'; return; }
+  container.innerHTML = results.map((city, index) => `<button class="city-result" type="button" data-city-index="${index}"><b>${city.name}</b><span>${[city.admin1, city.country].filter(Boolean).join(' · ')}</span></button>`).join('');
+  container.querySelectorAll('[data-city-index]').forEach(button => button.addEventListener('click', () => {
+    const city = results[Number(button.dataset.cityIndex)];
+    $('#cityResults').innerHTML = '';
+    $('#citySearchForm').hidden = true;
+    $('#searchCityToggle').textContent = '⌕ 搜索其他城市';
+    getWeather(city.latitude, city.longitude, [city.name, city.admin1].filter(Boolean).join(' · '));
+    toast(`已切换到 ${city.name}`);
+  }));
+}
+async function searchCity(event) {
+  event.preventDefault();
+  const query = $('#citySearchInput').value.trim();
+  if (!query) return;
+  $('#cityResults').innerHTML = '<p class="city-result">正在搜索城市…</p>';
+  try {
+    const params = new URLSearchParams({ name:query, count:'5', language:'zh', format:'json' });
+    const response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?${params}`);
+    if (!response.ok) throw new Error('search unavailable');
+    renderCityResults((await response.json()).results);
+  } catch (error) {
+    $('#cityResults').innerHTML = '<p class="city-result">暂时无法搜索，请检查网络后重试。</p>';
+  }
+}
 
-$('#refreshWeather').addEventListener('click',requestLocation); $('#locationButton').addEventListener('click',requestLocation); $('#shuffleOutfit').addEventListener('click',()=>{shuffleIndex++;refreshRecommendation();toast('换一套看看');});
+$('#refreshWeather').addEventListener('click',requestLocation); $('#locationButton').addEventListener('click',requestLocation); $('#searchCityToggle').addEventListener('click',()=>{const form=$('#citySearchForm');form.hidden=!form.hidden;$('#searchCityToggle').textContent=form.hidden?'⌕ 搜索其他城市':'收起城市搜索';if(!form.hidden) $('#citySearchInput').focus();}); $('#citySearchForm').addEventListener('submit',searchCity); $('#shuffleOutfit').addEventListener('click',()=>{shuffleIndex++;refreshRecommendation();toast('换一套看看');});
 document.querySelectorAll('[data-goto]').forEach(button=>button.addEventListener('click',()=>switchView(button.dataset.goto)));
 $('#filterRow').addEventListener('click',event=>{const button=event.target.closest('.filter');if(!button)return;activeFilter=button.dataset.filter;document.querySelectorAll('.filter').forEach(b=>b.classList.toggle('active',b===button));renderCloset();});
 $('#itemWarmth').addEventListener('input',event=>$('#warmthOutput').textContent=['','轻薄','偏薄','中等','保暖','很暖'][event.target.value]);
